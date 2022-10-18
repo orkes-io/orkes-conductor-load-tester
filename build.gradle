@@ -1,0 +1,143 @@
+buildscript {
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:2.5.7"
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:6.+'
+    }
+}
+
+plugins {
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id "com.diffplug.spotless" version "5.0.0"
+}
+
+ext {
+    appVersion = '0.0.1-SNAPSHOT'
+    springBootVersion = '2.5.6'
+    set('elasticsearch.version', '6.8.12')
+    versions = [
+            conductorfork           : '3.9.0-orkes-g',
+            revConductorClient      : '2.0.0-rc2',
+            revOpenapi              : '1.6.+',
+            revAzureStorageBlobSdk  : '12.15.0',
+            revDynoQueues           : '2.0.21',
+            revElastic              : '6.8.12',
+            revSpectator            : '0.122.0',
+            revTestContainer        : '1.17.2',
+            revGuava                : '30.0-jre',
+            ioGRPC                  : '1.38.1',
+            firebase                : '8.1.0',
+            log4j                   : '2.17.1',
+            revAwsSdk               : '1.12.153',
+            awsSDK                  : '2.10.34',
+            auth0                   : '1.35.0',
+            auth0Jwt                : '3.19.0',
+            auth0JwksRsa            : '0.21.1',
+            revJersey               : '1.19.4',
+            revEurekaClient         : '1.10.10',
+            lucene                  : '7.7.3',
+            revJedis                : '3.3.0',
+            resilience4j            : '1.7.0',
+            oktaJwt                 : '0.5.1',
+            revRarefiedRedis        : '0.0.17',
+            revProtoBuf             : '3.13.0',
+            revGrpc                 : '1.+',
+            revKafkaClient          : '3.2.0',
+            revGroovy               : '3.0.9',
+            revSpock                : '2.1-groovy-3.0',
+            revMockServerClient     : '5.12.0',
+            revJsonPath             : '2.4.0',
+            revSpotifyCompletableFutures:  '0.3.3'
+    ]
+}
+
+if (project.hasProperty("conductorForkVersion")) {
+    println "Running build using conductor fork version: " + project.getProperty("conductorForkVersion")
+    ext.versions.conductorfork = project.getProperty("conductorForkVersion")
+}
+
+def relVersion = System.getenv('REL_VER')
+if (relVersion) {
+    println "Inferred version from env variable 'REL_VER': $relVersion"
+    appVersion = relVersion
+}
+
+subprojects { subproject ->
+    group = 'io.orkes.conductor'
+    version = "${appVersion}"
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: "com.diffplug.spotless"
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url "https://s01.oss.sonatype.org/content/repositories/releases/"
+        }
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+        testCompileOnly {
+            extendsFrom annotationProcessor
+        }
+        all {
+            exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl'
+            exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+            if (subproject.name != 'orkes-conductor-workers') {
+                exclude group: 'com.netflix.conductor'
+            }
+        }
+    }
+
+    dependencies {
+        implementation "org.apache.logging.log4j:log4j-core:${versions.log4j}!!"
+        implementation "org.apache.logging.log4j:log4j-api:${versions.log4j}!!"
+        implementation "org.apache.logging.log4j:log4j-slf4j-impl:${versions.log4j}!!"
+        implementation "org.apache.logging.log4j:log4j-jul:${versions.log4j}!!"
+        implementation "org.apache.logging.log4j:log4j-web:${versions.log4j}!!"
+        implementation "org.apache.logging.log4j:log4j-to-slf4j:${versions.log4j}!!"
+        implementation "io.github.resilience4j:resilience4j-ratelimiter:${versions.resilience4j}!!"
+
+        compileOnly "org.projectlombok:lombok"
+        annotationProcessor "org.projectlombok:lombok"
+        testAnnotationProcessor 'org.projectlombok:lombok'
+        implementation 'org.apache.commons:commons-lang3'
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+        }
+    }
+
+    spotless {
+        java {
+            removeUnusedImports()
+            importOrder('java', 'javax', 'org', 'com.netflix', 'io.orkes','', '\\#com.netflix', '\\#')
+            licenseHeaderFile("$rootDir/licenseheader.txt")
+        }
+    }
+    build.dependsOn(spotlessApply)
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events = ["SKIPPED", "FAILED"]
+            exceptionFormat = "full"
+            showStandardStreams = false
+        }
+    }
+
+    compileJava {
+        sourceCompatibility = 11
+        targetCompatibility = 11
+    }
+}
+
+
+
+
+

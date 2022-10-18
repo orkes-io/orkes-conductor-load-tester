@@ -1,0 +1,4 @@
+rootProject.name = 'orkes-conductor-load-tester'
+include 'workers'
+
+rootProject.children.each { it.name = "${rootProject.name}-${it.name}" }
