@@ -92,6 +92,11 @@ public class OrkesConductorWorkersApplication {
             pollingInterval = 50;
         }
 
+        Integer pollCount = env.getProperty("conductor.worker.load_test.pollCount", Integer.class);
+        if(pollCount == null) {
+            pollCount = 20;
+        }
+
         log.info("Starting workers with {} threads and {} ms polling interval", threadCount, pollingInterval);
 
         workersList.add(new LoadTestWorker("x_test_worker_4", 100, pollingInterval));
@@ -117,6 +122,7 @@ public class OrkesConductorWorkersApplication {
                 .Builder(taskClient, workersList)
                 .withTaskThreadCount(taskThreadCount)
                 .withTaskPollTimeout(5)
+                .withTaskPollCount(pollCount)
                 .build();
         runnerConfigurer.init();
         return runnerConfigurer;
