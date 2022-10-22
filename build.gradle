@@ -16,7 +16,7 @@ ext {
     set('elasticsearch.version', '6.8.12')
     versions = [
             conductorfork           : '3.9.0-orkes-g',
-            revConductorClient      : '2.0.0-rc3',
+            revConductorClient      : '2.0.0-rc6',
             revOpenapi              : '1.6.+',
             revAzureStorageBlobSdk  : '12.15.0',
             revDynoQueues           : '2.0.21',
