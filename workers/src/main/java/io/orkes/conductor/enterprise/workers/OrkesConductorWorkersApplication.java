@@ -99,22 +99,17 @@ public class OrkesConductorWorkersApplication {
 
         log.info("Starting workers with {} threads and {} ms polling interval", threadCount, pollingInterval);
 
-        workersList.add(new LoadTestWorker("x_test_worker_4", 100, pollingInterval));
-        taskThreadCount.put("x_test_worker_4", threadCount);
 
-        workersList.add(new LoadTestWorker("x_test_worker_0", 200, pollingInterval));
+        workersList.add(new LoadTestWorker("x_test_worker_0", 5_000, pollingInterval));
         taskThreadCount.put("x_test_worker_0", threadCount);
 
-        workersList.add(new LoadTestWorker("x_test_worker_1", 100, pollingInterval));
+        workersList.add(new LoadTestWorker("x_test_worker_1", 4_000, pollingInterval));
         taskThreadCount.put("x_test_worker_1", threadCount);
 
-        workersList.add(new LoadTestWorker("x_test_worker_2", 500, pollingInterval));
+        workersList.add(new LoadTestWorker("x_test_worker_2", 3_000, pollingInterval));
         taskThreadCount.put("x_test_worker_2", threadCount);
 
-        workersList.add(new LoadTestWorker("x_test_worker_3", 100, pollingInterval));
-        taskThreadCount.put("x_test_worker_3", threadCount);
-
-        workersList.add(new LoadTestWorker("x_test_worker_long_running", 500, pollingInterval));
+        workersList.add(new LoadTestWorker("x_test_worker_long_running", 10_000, pollingInterval));
         taskThreadCount.put("x_test_worker_long_running", threadCount);
 
         log.info("Starting workers : {}", workersList);
